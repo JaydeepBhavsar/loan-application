@@ -3,6 +3,11 @@ import { api } from '@/api';
 import { useModal } from '@/composables/useModal';
 import { useToast } from '@/composables/useToast';
 import { ref,toRaw,computed} from 'vue';
+
+const props = defineProps<{
+  callListAPI: () => void;
+}>();
+
 const modal = useModal<boolean>()
 const toast = useToast()
 
@@ -46,14 +51,15 @@ const submitApplication = async () => {
     return
   }
   const isFormComplate = isFormValid()
-  
+
   if (!isFormComplate.value) {
     return toast.error('Please fill all fields')
   }
   const formDataRaw = toRaw(formData.value)
   const response:any = await api.applications.post(formDataRaw)
   if (response.success) {
-    const loanAmount:number | null =Math.round(response.loanAmount * 100) / 100  
+
+    const loanAmount:number | null =Math.round(response.loanAmount * 100) / 100
     const message = loanAmount !== null ? `Loan Amount : ${loanAmount}` : ``
     toast.success(`Application Saved... ${message}`)
     formData.value.applicantName = '';
@@ -73,6 +79,7 @@ const submitApplication = async () => {
     formData.value.outgoingValuation = 0;
     formData.value.savingsContribution = 0;
     modal.confirm(false)
+    props.callListAPI()
   }
   else {
     toast.error('Error occurred while saving application')
@@ -94,6 +101,7 @@ const submitApplication = async () => {
     formData.value.savingsContribution = 0;
   }
 }
+
 </script>
 
 <template>

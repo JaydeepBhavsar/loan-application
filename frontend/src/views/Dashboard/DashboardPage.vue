@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { api } from '@/api';
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
 import { useToast } from '@/composables/useToast';
 import ActionsCard from './ActionsCard.vue';
 import ApplicationsCard from './ApplicationsCard.vue';
 import TasksCard from './TasksCard.vue';
 import type { ApiSchema } from '@/types';
 import type { components } from '@/types/schemas/api';
+
+
+const callListAPI = ref(false);
+const toggleList = () => {
+  callListAPI.value = !callListAPI.value;
+}
 
 const toast = useToast();
 const applications = ref<ApiSchema['BrokerApplicationDto'][]>([]);
@@ -32,6 +38,9 @@ const loadTasks = async () => {
   }
 };
 
+watch(callListAPI, () => {
+    loadApplications();
+});
 loadApplications();
 loadTasks();
 </script>
@@ -42,7 +51,7 @@ loadTasks();
       <ApplicationsCard :applications="applications" />
     </div>
     <div class="dashboard__actions">
-      <ActionsCard />
+      <ActionsCard :callListAPI="toggleList" />
     </div>
     <div class="dashboard__tasks">
       <TasksCard :tasks="tasks" />
